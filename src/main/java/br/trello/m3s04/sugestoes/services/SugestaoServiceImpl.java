@@ -43,17 +43,25 @@ public class SugestaoServiceImpl implements SugestaoService{
 
     @Override
     public ComentarioResponse addComentario(Long sugestaoId, ComentarioRequest request) {
-        log.info("POST /sugestoes/{sugestaoId}/comentarios -> Serviço chamado.");
+        log.info("POST /sugestoes/{}/comentarios -> Serviço chamado.", sugestaoId);
+
         Sugestao sugestao = sugestaoRepository.findById(sugestaoId)
                 .orElseThrow(() -> new RuntimeException("Sugestão não encontrada."));
+
         Comentario comentario = new Comentario(request);
         comentario.setDataEnvio(LocalDateTime.now());
         comentario.setSugestao(sugestao);
-        Comentario savedComment = comentarioRepository.save(comentario);
-        log.info("POST /sugestoes/{sugestaoId}/comentarios -> Comentário criado.");
-        return new ComentarioResponse(savedComment);
 
+        Comentario savedComment = comentarioRepository.save(comentario);
+
+        // Atualiza a data de atualização da sugestão
+        sugestao.setDataAtualizacao(LocalDateTime.now());
+        sugestaoRepository.save(sugestao);
+
+        log.info("POST /sugestoes/{}/comentarios -> Comentário criado e data de atualização da sugestão atualizada.", sugestaoId);
+        return new ComentarioResponse(savedComment);
     }
+
 
     @Override
     public SugestaoDetailResponse search(Long id) {
