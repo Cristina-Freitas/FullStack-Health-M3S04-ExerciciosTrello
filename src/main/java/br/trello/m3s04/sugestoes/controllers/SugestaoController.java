@@ -1,6 +1,7 @@
 package br.trello.m3s04.sugestoes.controllers;
 
 import br.trello.m3s04.sugestoes.dtos.Filter;
+import br.trello.m3s04.sugestoes.dtos.SugestaoDetailResponse;
 import br.trello.m3s04.sugestoes.dtos.SugestaoRequest;
 import br.trello.m3s04.sugestoes.dtos.SugestaoResponse;
 import br.trello.m3s04.sugestoes.services.SugestaoService;
@@ -47,6 +48,18 @@ public class SugestaoController {
 
         Page<SugestaoResponse> response = sugestaoService.list(filter, pageable);
         log.info("GET /sugestoes -> End");
+        return response;
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(description = "Find sugestao by ID", summary = "Find sugestao by ID")
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Success!"),
+            @ApiResponse(responseCode = "404", description = "Sugestao not found")})
+    public SugestaoDetailResponse findById(@PathVariable Long id) {
+        log.info("GET /sugestoes/{} -> Begin", id);
+        SugestaoDetailResponse response = sugestaoService.search(id);
+        log.info("GET /sugestoes/{} -> End", id);
         return response;
     }
 }

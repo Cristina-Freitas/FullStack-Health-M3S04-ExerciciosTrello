@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -56,11 +57,19 @@ public class SugestaoServiceImpl implements SugestaoService{
 
     @Override
     public SugestaoDetailResponse search(Long id) {
-        log.info("GET/sugestoes/{id} -> Serviço chamado.");
+        log.info("GET /sugestoes/{} -> Serviço chamado.", id);
         Sugestao sugestao = sugestaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sugestão não encontrada."));
-        log.info("GET/sugestoes/{id} -> Sugestão recuperada.");
-        return new SugestaoDetailResponse(sugestao);
 
+        List<ComentarioResponse> comentarios = comentarioRepository
+                .findBySugestaoOrderByDataEnvioDesc(sugestao)
+                .stream()
+                .map(ComentarioResponse::new)
+                .toList();
+
+        SugestaoDetailResponse response = new SugestaoDetailResponse(sugestao);
+        response.setComentarios(comentarios);
+        log.info("GET /sugestoes/{} -> Sugestão recuperada com comentários ordenados.", id);
+        return response;
     }
 }
